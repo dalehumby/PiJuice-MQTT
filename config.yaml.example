@@ -1,0 +1,15 @@
+# Configuration for publishing PiJuice info to MQTT
+
+mqtt:
+  broker: 10.0.0.1
+  port: 1883
+  username: mymqttusername
+  password: mymqttpassword
+
+homeassistant:
+  topic: homeassistant  # MQTT Autodiscovery root topic
+  sensor: true  # Publish autodiscovery for PiJuice sensor
+
+publish_period: 30  # How long to wait between publishing information
+#hostname: myrpi  # Identifier for this Raspberry Pi, defaults to the hostname 
+
