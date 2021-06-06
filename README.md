@@ -59,9 +59,11 @@ The stats above show that the battery is fully charged, and the boards are power
 
 To automatically add the PiJuice device and entities to Home Assistant, in `config.yaml` set the `homeassistant` `topic` and `sensor: true`. (You will also need the [MQTT Integration](https://www.home-assistant.io/integrations/mqtt/) setup in Home Assistant.)
 
-A device for the PiJuice will be added to the device registry, along with two entities:
-- battery charge percentage as a `sensor`
-- status of the 5 V IO power input as a `binary_sensor`, where `off` means no power, and `on` means wall power is present
+A device called `<youpihostname> PiJuice` will be added to the device registry, along with two entities:
+- `<youpihostname> PiJuice Battery` battery charge percentage as a `sensor`
+- `<youpihostname> PiJuice PowerInput5vIo` status of the 5 V IO power input as a `binary_sensor`, where `off` means no power, and `on` means wall power is present
+
+All information from the MQTT payload is added as an `attribute` to the sensors so you can get more detailed info like voltages and currents, if you need them.
 
 ![PiJuice HA](pijuice-ha.png)
 

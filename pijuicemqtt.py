@@ -44,7 +44,6 @@ def load_config(config_file):
         },
         "homeassistant": {
             "topic": "homeassistant",
-            "device_tracker": True,
             "sensor": True,
         },
         "publish_period": 30,
@@ -85,7 +84,7 @@ def mqtt_on_connect(client, userdata, flags, rc):
             "json_attributes_topic": f"{SERVICE_NAME}/{config['hostname']}/status",
             "device": {
                 "identifiers": [f"{SERVICE_NAME}-{config['hostname']}"],
-                "name": f"{config['hostname']}",
+                "name": f"{config['hostname']} PiJuice",
                 "sw_version": f"Library {library_version}, Firmware {firmware_version}",
                 "model": f"PiJuice {battery_capacity} mAh",
                 "manufacturer": "PiSupply",
@@ -94,13 +93,13 @@ def mqtt_on_connect(client, userdata, flags, rc):
         # Battery charge percentage
         payload = {
             "name": f"{config['hostname']} PiJuice Battery",
-            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-battery",
+            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-batteryCharge",
             "value_template": "{{ value_json.batteryCharge }}",
             "device_class": "battery",
             "unit_of_measurement": "%",
         }
         client.publish(
-            f"{config['homeassistant']['topic']}/sensor/{SERVICE_NAME}-{config['hostname']}/battery/config",
+            f"{config['homeassistant']['topic']}/sensor/{SERVICE_NAME}-{config['hostname']}/batteryCharge/config",
             dumps({**base_payload, **payload}),
             qos=1,
             retain=True,
@@ -108,15 +107,15 @@ def mqtt_on_connect(client, userdata, flags, rc):
 
         # Power/No Power binary sensor
         payload = {
-            "name": f"{config['hostname']} PiJuice Power",
-            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-power",
+            "name": f"{config['hostname']} PiJuice PowerInput5vIo",
+            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-powerInput5vIo",
             "value_template": "{{ value_json.powerInput5vIo }}",
             "payload_off": "NOT_PRESENT",
             "payload_on": "PRESENT",
             "device_class": "power",
         }
         client.publish(
-            f"{config['homeassistant']['topic']}/binary_sensor/{SERVICE_NAME}-{config['hostname']}/power/config",
+            f"{config['homeassistant']['topic']}/binary_sensor/{SERVICE_NAME}-{config['hostname']}/powerInput5vIo/config",
             dumps({**base_payload, **payload}),
             qos=1,
             retain=True,
@@ -143,7 +142,7 @@ def on_exit(signum, frame):
 
 def publish_pijuice():
     """
-    Publish PiJuice UPS Hat information every `period` seconds.
+    Publish PiJuice UPS Hat information every `publish_period` seconds.
 
     See https://github.com/PiSupply/PiJuice/tree/master/Software#i2c-command-api
     """
