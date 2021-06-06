@@ -1,10 +1,10 @@
 # Configuration for publishing PiJuice info to MQTT
 
 mqtt:
-  broker: 10.0.0.1
+  broker: 127.0.0.1
   port: 1883
-  username: mymqttusername
-  password: mymqttpassword
+  username: mymqttusername  # Login to broker. Delete if not required
+  password: mymqttpassword  # Login to broker. Delete if not required
 
 homeassistant:
   topic: homeassistant  # MQTT Autodiscovery root topic
