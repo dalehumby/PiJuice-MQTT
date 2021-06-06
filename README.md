@@ -9,7 +9,7 @@ Existing [Node-RED](https://flows.nodered.org/node/node-red-contrib-pisupply-pij
 ## Installation
 
 ### Install the PiJuice CLI
-This installation assumes that you already have the [`pijuice_cli`](https://github.com/PiSupply/PiJuice/tree/master/Software#pijuice-cli) working. To test this, on your command line type `pijuice_cli` and you should be presented with the PiJuice CLI. If you are not, follow the [Installation Guide](https://github.com/PiSupply/PiJuice/tree/master/Software#pijuice-software).
+This installation assumes that you already have the [`pijuice_cli`](https://github.com/PiSupply/PiJuice/tree/master/Software#pijuice-cli) working. To test this, on your command line type `pijuice_cli` and you should be presented with the PiJuice CLI. If not, follow the [Installation Guide](https://github.com/PiSupply/PiJuice/tree/master/Software#pijuice-software).
 
 ### Clone this repo
 
@@ -47,7 +47,7 @@ Briefly:
 - `batteryVoltage` is typically 3.2 V min and 4.2 V max
 - `batteryCurrent` is the charging/discharge of the battery. Negative means in to the battery
 - `batteryTemperature` in degrees Celsius
-- `batteryStatus` where `NORMAL` is fully charged with no errors, **TODO other values for charging**
+- `batteryStatus` where `NORMAL` is fully charged, and `CHARGING_FROM_IN` or `CHARGING_FROM_5V_IO` while charging from USB, depending on whether the source is the PiJuice USB (`IN`) or Pi's USB (`5V_IO`)
 - `powerInput` will be `PRESENT` if USB is plugged into the PiJuice hat
 - `powerInput5vIo` will be `PRESENT` if USB is plugged into the Raspberry Pi board (as it is here), and the PiJuice is getting power via the headers on the Pi
 - `ioVoltage` is the Pi's 5 V rail. Should be 5.0 V to max 5.25 V
@@ -67,7 +67,7 @@ All information from the MQTT payload is added as an `attribute` to the sensors 
 
 ![PiJuice HA](pijuice-ha.png)
 
-You can then add show this information on your Lovelace dashboards, add badges and automations.
+You can then show this information to your Lovelace dashboards, add badges and automations.
 
 ### Install as a systemd service
 
