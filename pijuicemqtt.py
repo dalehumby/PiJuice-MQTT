@@ -71,6 +71,7 @@ def mqtt_on_connect(client, userdata, flags, rc):
 
     # Home Assistant MQTT autoconfig
     if config["homeassistant"]["sensor"]:
+        print("Publishing Home Assistant MQTT autoconfig")
         # Payload that is common to both autoconfig messages
         battery_capacity = pijuice.config.GetBatteryProfile()["data"]["capacity"]
         firmware_version = pijuice.config.GetFirmwareVersion()["data"]["version"]
@@ -164,7 +165,6 @@ def publish_pijuice():
         f"{SERVICE_NAME}/{config['hostname']}/status",
         dumps(pijuice_status),
     )
-    print(pijuice_status)
 
 
 config = load_config(args.config_file)
