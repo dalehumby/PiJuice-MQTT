@@ -8,13 +8,12 @@ import signal
 import sys
 import threading
 from json import dumps
-from pijuice import PiJuice
+from pijuice import PiJuice, __version__ as library_version
 
 import paho.mqtt.client as mqtt
 import yaml
 
 SERVICE_NAME = "pijuicemqtt"
-RUN_TIMERS = True
 
 parser = argparse.ArgumentParser(description="PiJuice to MQTT")
 parser.add_argument(
@@ -27,6 +26,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 pijuice = PiJuice(1, 0x14) # Instantiate PiJuice interface object
+timer_thread = None
 
 def load_config(config_file):
     """Load the configuration from config yaml file and use it to override the defaults."""
@@ -69,64 +69,52 @@ def mqtt_on_connect(client, userdata, flags, rc):
         retain=True,
     )
 
-    # TODO get version and battery capacity
-    # pijuice.config.GetBatteryProfile()
-    # pijuice.config.GetFirmwareVersion()
-
     # Home Assistant MQTT autoconfig
     if config["homeassistant"]["sensor"]:
-        # Battery charge percentage
-        payload = {
+        # Payload that is common to both autoconfig messages
+        battery_capacity = pijuice.config.GetBatteryProfile()["data"]["capacity"]
+        firmware_version = pijuice.config.GetFirmwareVersion()["data"]["version"]
+        base_payload = {
             "availability_topic": f"{SERVICE_NAME}/{config['hostname']}/service",
             "payload_available": "online",
             "payload_not_available": "offline",
-            "name": f"{config['hostname']} PiJuice Battery",
-            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-battery",
             "state_topic": f"{SERVICE_NAME}/{config['hostname']}/status",
-            "value_template": "{{ value_json.batteryCharge }}",
-            "device_class": "battery",
-            "unit_of_measurement": "%",
             "json_attributes_topic": f"{SERVICE_NAME}/{config['hostname']}/status",
             "device": {
                 "identifiers": [f"{SERVICE_NAME}-{config['hostname']}"],
                 "name": f"{config['hostname']}",
-                "sw_version": "Software 1.7, Firmware 1.5",
-                "model": "PiJuice 1000 mAh",
+                "sw_version": f"Library {library_version}, Firmware {firmware_version}",
+                "model": f"PiJuice {battery_capacity} mAh",
                 "manufacturer": "PiSupply",
             },
         }
-
+        # Battery charge percentage
+        payload = {
+            "name": f"{config['hostname']} PiJuice Battery",
+            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-battery",
+            "value_template": "{{ value_json.batteryCharge }}",
+            "device_class": "battery",
+            "unit_of_measurement": "%",
+        }
         client.publish(
             f"{config['homeassistant']['topic']}/sensor/{SERVICE_NAME}-{config['hostname']}/battery/config",
-            dumps(payload),
+            dumps({**base_payload, **payload}),
             qos=1,
             retain=True,
         )
 
         # Power/No Power binary sensor
         payload = {
-            "availability_topic": f"{SERVICE_NAME}/{config['hostname']}/service",
-            "payload_available": "online",
-            "payload_not_available": "offline",
             "name": f"{config['hostname']} PiJuice Power",
             "unique_id": f"{SERVICE_NAME}-{config['hostname']}-power",
-            "state_topic": f"{SERVICE_NAME}/{config['hostname']}/status",
             "value_template": "{{ value_json.powerInput5vIo }}",
             "payload_off": "NOT_PRESENT",
             "payload_on": "PRESENT",
             "device_class": "power",
-            "json_attributes_topic": f"{SERVICE_NAME}/{config['hostname']}/status",
-            "device": {
-                "identifiers": [f"{SERVICE_NAME}-{config['hostname']}"],
-                "name": f"{config['hostname']}",
-                "sw_version": "Software 1.7, Firmware 1.5",
-                "model": "PiJuice 1000 mAh",
-                "manufacturer": "PiSupply",
-            },
         }
         client.publish(
             f"{config['homeassistant']['topic']}/binary_sensor/{SERVICE_NAME}-{config['hostname']}/power/config",
-            dumps(payload),
+            dumps({**base_payload, **payload}),
             qos=1,
             retain=True,
         )
@@ -134,11 +122,10 @@ def mqtt_on_connect(client, userdata, flags, rc):
 
 def on_exit(signum, frame):
     """
-    Update MQTT services' status to `offline`
+    Update MQTT services' status to `offline` and stop the timer thread.
 
     Called when program exit is received.
     """
-    global RUN_TIMERS
     print("Exiting...")
     client.publish(
         f"{SERVICE_NAME}/{config['hostname']}/service",
@@ -146,7 +133,8 @@ def on_exit(signum, frame):
         qos=1,
         retain=True,
     )
-    RUN_TIMERS = False
+    timer_thread.cancel()
+    timer_thread.join()
     sys.exit(0)
 
 
@@ -156,8 +144,9 @@ def publish_pijuice():
 
     See https://github.com/PiSupply/PiJuice/tree/master/Software#i2c-command-api
     """
-    if RUN_TIMERS:
-        threading.Timer(config["publish_period"], publish_pijuice).start()
+    global timer_thread
+    timer_thread = threading.Timer(config["publish_period"], publish_pijuice)
+    timer_thread.start()
 
     status = pijuice.status.GetStatus()["data"]
     pijuice_status = {
