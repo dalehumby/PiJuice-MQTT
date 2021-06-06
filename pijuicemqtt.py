@@ -8,10 +8,11 @@ import signal
 import sys
 import threading
 from json import dumps
-from pijuice import PiJuice, __version__ as library_version
 
 import paho.mqtt.client as mqtt
 import yaml
+from pijuice import PiJuice
+from pijuice import __version__ as library_version
 
 SERVICE_NAME = "pijuicemqtt"
 
@@ -25,8 +26,9 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-pijuice = PiJuice(1, 0x14) # Instantiate PiJuice interface object
+pijuice = PiJuice(1, 0x14)  # Instantiate PiJuice interface object
 timer_thread = None
+
 
 def load_config(config_file):
     """Load the configuration from config yaml file and use it to override the defaults."""
@@ -152,14 +154,14 @@ def publish_pijuice():
     status = pijuice.status.GetStatus()["data"]
     pijuice_status = {
         "batteryCharge": pijuice.status.GetChargeLevel()["data"],
-        "batteryVolage": pijuice.status.GetBatteryVoltage()["data"]/1000,
-        "batteryCurrent": pijuice.status.GetBatteryCurrent()["data"]/1000,
+        "batteryVolage": pijuice.status.GetBatteryVoltage()["data"] / 1000,
+        "batteryCurrent": pijuice.status.GetBatteryCurrent()["data"] / 1000,
         "batteryTemperature": pijuice.status.GetBatteryTemperature()["data"],
         "batteryStatus": status["battery"],
         "powerInput": status["powerInput"],
         "powerInput5vIo": status["powerInput5vIo"],
-        "ioVoltage": pijuice.status.GetIoVoltage()["data"]/1000,
-        "ioCurrent": pijuice.status.GetIoCurrent()["data"]/1000,
+        "ioVoltage": pijuice.status.GetIoVoltage()["data"] / 1000,
+        "ioCurrent": pijuice.status.GetIoCurrent()["data"] / 1000,
     }
     client.publish(
         f"{SERVICE_NAME}/{config['hostname']}/status",
