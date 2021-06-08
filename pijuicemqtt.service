@@ -1,11 +1,16 @@
 [Unit]
 Description=PiJuice to MQTT
 After=multi-user.target
+StartLimitIntervalSec=610
+StartLimitBurst=10
+
 [Service]
 WorkingDirectory=/path/to/repo/PiJuice-MQTT
 User=pi
 Type=idle
 ExecStart=/usr/bin/python3 /path/to/repo/PiJuice-MQTT/pijuicemqtt.py
 Restart=always
+RestartSec=30
+
 [Install]
 WantedBy=multi-user.target

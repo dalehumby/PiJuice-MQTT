@@ -150,22 +150,25 @@ def publish_pijuice():
     timer_thread = threading.Timer(config["publish_period"], publish_pijuice)
     timer_thread.start()
 
-    status = pijuice.status.GetStatus()["data"]
-    pijuice_status = {
-        "batteryCharge": pijuice.status.GetChargeLevel()["data"],
-        "batteryVolage": pijuice.status.GetBatteryVoltage()["data"] / 1000,
-        "batteryCurrent": pijuice.status.GetBatteryCurrent()["data"] / 1000,
-        "batteryTemperature": pijuice.status.GetBatteryTemperature()["data"],
-        "batteryStatus": status["battery"],
-        "powerInput": status["powerInput"],
-        "powerInput5vIo": status["powerInput5vIo"],
-        "ioVoltage": pijuice.status.GetIoVoltage()["data"] / 1000,
-        "ioCurrent": pijuice.status.GetIoCurrent()["data"] / 1000,
-    }
-    client.publish(
-        f"{SERVICE_NAME}/{config['hostname']}/status",
-        dumps(pijuice_status),
-    )
+    try:
+        status = pijuice.status.GetStatus()["data"]
+        pijuice_status = {
+            "batteryCharge": pijuice.status.GetChargeLevel()["data"],
+            "batteryVolage": pijuice.status.GetBatteryVoltage()["data"] / 1000,
+            "batteryCurrent": pijuice.status.GetBatteryCurrent()["data"] / 1000,
+            "batteryTemperature": pijuice.status.GetBatteryTemperature()["data"],
+            "batteryStatus": status["battery"],
+            "powerInput": status["powerInput"],
+            "powerInput5vIo": status["powerInput5vIo"],
+            "ioVoltage": pijuice.status.GetIoVoltage()["data"] / 1000,
+            "ioCurrent": pijuice.status.GetIoCurrent()["data"] / 1000,
+        }
+        client.publish(
+            f"{SERVICE_NAME}/{config['hostname']}/status",
+            dumps(pijuice_status),
+        )
+    except KeyError:
+        print("Could not read PiJuice data, skipping")
 
 
 config = load_config(args.config_file)
@@ -175,6 +178,7 @@ if __name__ == "__main__":
     client.on_connect = mqtt_on_connect
     client.username_pw_set(config["mqtt"]["username"], config["mqtt"]["password"])
     client.connect(config["mqtt"]["broker"], config["mqtt"]["port"], 60)
+    print("PiJuice connected to MQTT broker")
 
     signal.signal(signal.SIGINT, on_exit)
     signal.signal(signal.SIGTERM, on_exit)
