@@ -17,7 +17,7 @@ This installation assumes that you already have the [`pijuice_cli`](https://gith
 2. Open the folder `cd PiJuice-MQTT`
 3. Rename the config file `mv config.yaml.example config.yaml`
 4. Open the `config.yaml` file and change the MQTT broker IP/hostname and the broker username/password. If no username/password is required to use your broker then delete the `username` and `password` lines
-5. Add the required libraries `pip install -r requirements.txt`
+5. Add the required libraries `pip3 install -r requirements.txt`
 6. To test the code is working, on the command line enter `python3 pijuicemqtt.py`. You should not see any errors or stack traces
 
 ## MQTT
