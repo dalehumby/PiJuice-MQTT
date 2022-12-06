@@ -138,7 +138,7 @@ def mqtt_on_connect(client, userdata, flags, rc):
             retain=True,
         )
 
-        # Battery Temperature sensor
+        # Battery Status sensor
         payload = {
             "name": f"{config['hostname']} PiJuice BatteryStatus",
             "unique_id": f"{SERVICE_NAME}-{config['hostname']}-batteryStatus",
