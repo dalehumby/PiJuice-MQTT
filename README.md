@@ -29,7 +29,7 @@ Example payload:
 ```json
 {
   "batteryCharge": 99,
-  "batteryVolage": 4.161,
+  "batteryVoltage": 4.161,
   "batteryCurrent": -0.427,
   "batteryTemperature": 47,
   "batteryStatus": "NORMAL",
