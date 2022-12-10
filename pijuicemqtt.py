@@ -121,6 +121,37 @@ def mqtt_on_connect(client, userdata, flags, rc):
             retain=True,
         )
 
+        # Battery Temperature sensor
+        payload = {
+            "name": f"{config['hostname']} PiJuice BatteryTemperature",
+            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-batteryTemperature",
+            "value_template": "{{ value_json.batteryTemperature }}",
+            "device_class": "temperature",
+            "unit_of_measurement": "°C",
+            "enabled_by_default": False,
+            "entity_category": "diagnostic",
+        }
+        client.publish(
+            f"{config['homeassistant']['topic']}/sensor/{SERVICE_NAME}-{config['hostname']}/batteryTemperature/config",
+            dumps({**base_payload, **payload}),
+            qos=1,
+            retain=True,
+        )
+
+        # Battery Status sensor
+        payload = {
+            "name": f"{config['hostname']} PiJuice BatteryStatus",
+            "unique_id": f"{SERVICE_NAME}-{config['hostname']}-batteryStatus",
+            "value_template": "{{ value_json.batteryStatus }}",
+            "enabled_by_default": False,
+            "entity_category": "diagnostic",
+        }
+        client.publish(
+            f"{config['homeassistant']['topic']}/sensor/{SERVICE_NAME}-{config['hostname']}/batteryStatus/config",
+            dumps({**base_payload, **payload}),
+            qos=1,
+            retain=True,
+        )
 
 def on_exit(signum, frame):
     """
