@@ -154,7 +154,7 @@ def publish_pijuice():
         status = pijuice.status.GetStatus()["data"]
         pijuice_status = {
             "batteryCharge": pijuice.status.GetChargeLevel()["data"],
-            "batteryVolage": pijuice.status.GetBatteryVoltage()["data"] / 1000,
+            "batteryVoltage": pijuice.status.GetBatteryVoltage()["data"] / 1000,
             "batteryCurrent": pijuice.status.GetBatteryCurrent()["data"] / 1000,
             "batteryTemperature": pijuice.status.GetBatteryTemperature()["data"],
             "batteryStatus": status["battery"],
