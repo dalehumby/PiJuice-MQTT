@@ -90,6 +90,10 @@ def mqtt_on_connect(client, userdata, flags, rc):
                 "manufacturer": "PiSupply",
             },
         }
+
+        if "expire_after" in config["homeassistant"]:
+            base_payload["expire_after"] = int(config["homeassistant"]["expire_after"])
+
         # Battery charge percentage
         payload = {
             "name": f"{config['hostname']} PiJuice Battery",
@@ -182,6 +186,15 @@ def publish_pijuice():
     timer_thread.start()
 
     try:
+
+        if "publish_online_status" in config and config["publish_online_status"]:
+            client.publish(
+                f"{SERVICE_NAME}/{config['hostname']}/service",
+                payload="online",
+                qos=1,
+                retain=True,
+            )
+
         status = pijuice.status.GetStatus()["data"]
         pijuice_status = {
             "batteryCharge": pijuice.status.GetChargeLevel()["data"],
