@@ -12,6 +12,6 @@ homeassistant:
   expire_after: 90 # If set, it defines the number of seconds after the sensor’s state expires, if it’s not updated. After expiry, the sensor’s state becomes unavailable
 
 publish_period: 30  # How long to wait between publishing information
-publish_online_status: true # Indicate if a availability message must be systematically published
+publish_online_status: true # Indicate if an availability message must be systematically published
 #hostname: myrpi  # Identifier for this Raspberry Pi, defaults to the hostname 
 
