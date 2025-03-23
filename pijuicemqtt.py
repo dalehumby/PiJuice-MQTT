@@ -54,7 +54,7 @@ def load_config(config_file):
     return config
 
 
-def mqtt_on_connect(client, userdata, flags, rc):
+def mqtt_on_connect(client, userdata, flags, reason_code, properties):
     """Renew subscriptions and set Last Will message when connect to broker."""
     # Set up Last Will, and then set services' status to 'online'
     client.will_set(
@@ -218,7 +218,7 @@ def publish_pijuice():
 config = load_config(args.config_file)
 
 if __name__ == "__main__":
-    client = mqtt.Client()
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = mqtt_on_connect
     client.username_pw_set(config["mqtt"]["username"], config["mqtt"]["password"])
     client.connect(config["mqtt"]["broker"], config["mqtt"]["port"], 60)
